@@ -101,8 +101,8 @@ test("run_tests feedback signal is recorded and drives next step", async () => {
       const ctx = msgs.map((m) => m.content).join("\n");
       if (calls === 0) {
         calls += 1;
-        writeFileSync(join(ws, "test.txt"), "initial");
-        return '{"tool":"run_tests","command":"node -e \\"process.exit(1)\\"" }';
+        writeFileSync(join(ws, "fail.test.mjs"), 'import assert from "node:assert"; assert.equal(1, 2);');
+        return '{"tool":"run_tests","command":"node --test fail.test.mjs"}';
       }
       if (ctx.includes("fail")) {
         return '{"tool":"stop","reason":"tests failed, stopping"}';
