@@ -1,0 +1,18 @@
+{
+  "name": "rampart-cli",
+  "version": "0.1.0",
+  "description": "A governed coding-agent harness: Agent = LLM + Harness. Guardrails, HITL, feedback, memory, config.",
+  "type": "module",
+  "bin": { "rampart": "bin/rampart.js" },
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "demo": "node src/demo/demo.ts"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/node": "^24.0.0"
+  }
+}
