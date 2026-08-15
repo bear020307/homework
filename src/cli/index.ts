@@ -113,7 +113,7 @@ async function runCmd(args: string[]): Promise<number> {
   return result.status === "error" ? 1 : 0;
 }
 
-function parseRunFlags(args: string[]): { config?: string; workspace?: string; model?: string; mock?: boolean; positionalArgs: string[] } {
+export function parseRunFlags(args: string[]): { config?: string; workspace?: string; model?: string; mock?: boolean; positionalArgs: string[] } {
   const out: { config?: string; workspace?: string; model?: string; mock?: boolean; positionalArgs: string[] } = { positionalArgs: [] };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
