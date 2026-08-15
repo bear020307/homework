@@ -101,12 +101,13 @@ type Action =
   | { id; kind: "list_dir"; path }
   | { id; kind: "run_command"; command; timeout? }
   | { id; kind: "run_tests"; command?; cwd? }
-  | { id; kind: "note"; text }        // 记忆写入
+  | { id; kind: "note"; text; tags? }        // 记忆写入；tags 用于记忆检索
   | { id; kind: "stop"; reason? }
   | { id; kind: "malformed"; raw }    // 非法输出，不进护栏
 ```
 
 - 解析器 `parseResponse(text)`：支持 JSON（`{"tool": ..., "args": ...}`）与轻量文本协议，两种都产出 Action。无法解析 → `malformed`。
+- 文本协议局限：`write_file` 的文本形式无法携带多行内容（`content` 为空），写文件内容必须用 JSON 形式。
 - 工具注册表：`kind → execute(env) → ToolResult`，`ToolResult = { ok: boolean; output: string; exitCode? }`。
 
 ### 3.5 治理 guardrail —— **核心贡献**
@@ -285,6 +286,7 @@ run(task) → context(系统提示+任务+记忆+历史观测)
 ### 6.1 Action
 ```ts
 { id: string; kind: "read_file"|"write_file"|"list_dir"|"run_command"|"run_tests"|"note"|"stop"|"malformed"; ... }
+// note 含可选 tags: string[]；write_file 文本协议无法携带多行 content（须用 JSON）
 ```
 
 ### 6.2 GuardrailVerdict
