@@ -27,6 +27,12 @@ export class SandboxExecutor {
     this.defaultTimeoutMs = opts.defaultTimeoutMs;
   }
 
+  private childEnv(): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    return env;
+  }
+
   run(command: string, opts?: { cwd?: string; timeoutMs?: number }): Promise<ExecResult> {
     const cwd = opts?.cwd
       ? (isAbsolute(opts.cwd) ? opts.cwd : join(this.workspace, opts.cwd))
@@ -40,7 +46,7 @@ export class SandboxExecutor {
         cwd,
         shell: true,
         env: {
-          ...process.env,
+          ...this.childEnv(),
           PATH: this.pathAllowlist.length > 0 ? this.pathAllowlist.join(":") : process.env.PATH,
         },
         stdio: ["ignore", "pipe", "pipe"],
