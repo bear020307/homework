@@ -48,21 +48,18 @@ export class AgentLoop {
     const { config } = this.opts;
     const start = Date.now();
     let lastFeedback: VerdictSignal | undefined;
-    let lastResultText = "";
-    let lastVerdictText = "";
 
     for (let step = 1; step <= config.loop.maxSteps; step++) {
       if (Date.now() - start > config.loop.sessionTimeoutMs) {
         return { status: "error", reason: "session timeout", steps: step - 1, observations };
       }
-      const messages = this.buildContext(task, observations, lastFeedback, lastResultText, lastVerdictText);
+      const messages = this.buildContext(task, observations, lastFeedback);
       let content: string;
       try {
         content = (await this.opts.llm.send(messages, { timeoutMs: config.llm.timeoutMs })).content;
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         this.push(observations, step, { id: `err${step}`, kind: "malformed", raw: msg });
-        lastResultText = `LLM 调用失败: ${msg}`;
         continue;
       }
       const action = parseResponse(content);
@@ -104,8 +101,6 @@ export class AgentLoop {
         };
       }
       lastFeedback = feedback;
-      lastResultText = result.output;
-      lastVerdictText = verdict.kind;
     }
     return { status: "max_steps", reason: `达到步数上限 ${config.loop.maxSteps}`, steps: config.loop.maxSteps, observations };
   }
@@ -124,7 +119,7 @@ export class AgentLoop {
     this.opts.onObservation?.(o);
   }
 
-  private buildContext(task: string, observations: Observation[], lastFeedback?: VerdictSignal, lastResultText = "", lastVerdictText = ""): LLMMessage[] {
+  private buildContext(task: string, observations: Observation[], lastFeedback?: VerdictSignal): LLMMessage[] {
     const { config } = this.opts;
     const messages: LLMMessage[] = [];
     messages.push({ role: "system", content: buildSystemPrompt(config) });

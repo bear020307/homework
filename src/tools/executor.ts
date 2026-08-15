@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
 import { dirname } from "node:path";
+import { resolveInsideWorkspace } from "../guardrail/path-fence.ts";
 import type { Action } from "../actions/types.ts";
 import type { SandboxExecutor } from "../guardrail/sandbox.ts";
 import type { MemoryStore } from "../memory/memory.ts";
@@ -18,17 +19,27 @@ export interface ExecutorDeps {
 }
 
 export function makeExecutor(deps: ExecutorDeps): (action: Action) => Promise<ToolResult> {
+  const fence = (path: string): string => {
+    const resolved = resolveInsideWorkspace(path, deps.workspace);
+    if (!resolved) throw new Error(`路径越出工作区: ${path}`);
+    return resolved;
+  };
   return async (action: Action) => {
     try {
       switch (action.kind) {
-        case "read_file":
-          return wrapOk((await readFile(action.path, "utf8")).toString());
-        case "write_file":
-          await mkdir(dirname(action.path), { recursive: true });
-          await writeFile(action.path, action.content, "utf8");
-          return wrapOk(`written ${action.path}`);
+        case "read_file": {
+          const p = fence(action.path);
+          return wrapOk((await readFile(p, "utf8")).toString());
+        }
+        case "write_file": {
+          const p = fence(action.path);
+          await mkdir(dirname(p), { recursive: true });
+          await writeFile(p, action.content, "utf8");
+          return wrapOk(`written ${p}`);
+        }
         case "list_dir": {
-          const names = await readdir(action.path);
+          const p = fence(action.path);
+          const names = await readdir(p);
           return wrapOk(names.join("\n"));
         }
         case "run_command": {

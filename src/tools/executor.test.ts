@@ -55,3 +55,18 @@ test("note writes to memory", async () => {
   assert.equal(all.length, 1);
   assert.equal(all[0].content, "remember this");
 });
+
+test("read_file outside workspace fails even via absolute path", async () => {
+  const ws = mkdtempSync(join(tmpdir(), "rampart-tools-"));
+  writeFileSync(join(tmpdir(), `rampart-outside-${Math.random()}.txt`), "secret");
+  const ex = makeExecutor({ workspace: ws, sandbox: makeSandbox(ws), memory: new MemoryStore(join(ws, "m.json")) });
+  const r = await ex({ id: "1", kind: "read_file", path: "/etc/passwd" });
+  assert.equal(r.ok, false);
+});
+
+test("write_file refuses a path resolving outside workspace via ..", async () => {
+  const ws = mkdtempSync(join(tmpdir(), "rampart-tools-"));
+  const ex = makeExecutor({ workspace: ws, sandbox: makeSandbox(ws), memory: new MemoryStore(join(ws, "m.json")) });
+  const r = await ex({ id: "1", kind: "write_file", path: "../../etc/escape.txt", content: "boom" });
+  assert.equal(r.ok, false);
+});

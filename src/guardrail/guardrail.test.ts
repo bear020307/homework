@@ -87,3 +87,24 @@ test("run_tests with dangerous command is blocked", async () => {
   const v = await g.evaluate({ id: "1", kind: "run_tests", command: "rm -rf node_modules" });
   assert.equal(v.kind, "block");
 });
+
+test("blocks command invoked via absolute path (normalized)", async () => {
+  const { g } = setup();
+  const v = await g.evaluate({ id: "1", kind: "run_command", command: "/bin/rm -rf /etc" });
+  assert.equal(v.kind, "block");
+  assert.equal(v.ruleId, "rm-rf");
+});
+
+test("blocks any dd invocation regardless of args interleaving", async () => {
+  const { g } = setup();
+  const v = await g.evaluate({ id: "1", kind: "run_command", command: "dd if=/dev/zero of=/dev/sda bs=1M" });
+  assert.equal(v.kind, "block");
+  assert.equal(v.ruleId, "dd");
+});
+
+test("blocks shell chain where deny rule follows allowlisted command", async () => {
+  const { g } = setup();
+  const v = await g.evaluate({ id: "1", kind: "run_command", command: "ls -la && rm -rf /etc" });
+  assert.equal(v.kind, "block");
+  assert.equal(v.ruleId, "rm-rf");
+});

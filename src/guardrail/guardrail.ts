@@ -1,5 +1,5 @@
 import { resolveInsideWorkspace } from "./path-fence.ts";
-import { tokenizeShell } from "./shell.ts";
+import { tokenizeShell, normalizeTokens } from "./shell.ts";
 import { matchRule } from "./rules.ts";
 import type { HarnessConfig } from "../config/config.ts";
 import type { Action } from "../actions/types.ts";
@@ -55,11 +55,12 @@ export class GuardrailPipeline {
     }
     const command = action.command ?? "";
     const tokens = tokenizeShell(command);
-    const denyHit = matchRule(tokens, this.config.deny);
+    const keyTokens = normalizeTokens(tokens);
+    const denyHit = matchRule(keyTokens, this.config.deny);
     if (denyHit) return block(`危险命令被拦截: ${denyHit.id}`, denyHit.id);
-    const approveHit = matchRule(tokens, this.config.approve);
+    const approveHit = matchRule(keyTokens, this.config.approve);
     if (approveHit) return approveV(`需人工审批: ${approveHit.id}`, approveHit.id);
-    const allowHit = matchRule(tokens, this.config.allow);
+    const allowHit = matchRule(keyTokens, this.config.allow);
     if (allowHit) return allow(`命令已列入白名单: ${allowHit.id}`);
     if (this.config.defaultPolicyForSpawn === "deny") {
       return denyV("命令未列入白名单，默认拒绝");

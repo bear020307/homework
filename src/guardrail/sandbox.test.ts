@@ -41,3 +41,11 @@ test("times out and kills long-running command", { timeout: 10000 }, async () =>
   const r = await sx.run("sleep 30", { timeoutMs: 200 });
   assert.equal(r.timedOut, true);
 });
+
+test("does not interpret shell operators as commands", { timeout: 10000 }, async () => {
+  const { sx } = setup();
+  const r = await sx.run("echo a; echo b");
+  assert.equal(r.ok, true);
+  assert.ok(!r.stdout.includes("; echo"));
+  assert.equal(r.exitCode, 0);
+});

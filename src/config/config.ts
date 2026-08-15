@@ -60,7 +60,7 @@ export function defaultConfig(workspace: string): HarnessConfig {
         { id: "rm-rf", tokens: ["rm", "-rf"] },
         { id: "sudo", tokens: ["sudo"] },
         { id: "mkfs", tokens: ["mkfs"] },
-        { id: "dd-block", tokens: ["dd", "of=/dev"] },
+        { id: "dd", tokens: ["dd"] },
         { id: "shutdown", tokens: ["shutdown"] },
       ],
       approve: [

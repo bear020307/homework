@@ -75,8 +75,8 @@ async function clearCmd(): Promise<number> {
 }
 
 async function runCmd(args: string[]): Promise<number> {
-  const task = args.find((a) => !a.startsWith("-"));
   const opts = parseRunFlags(args);
+  const task = opts.positionalArgs?.find((a) => a.trim().length > 0);
   if (!task) { console.error("请提供任务描述，如: rampart run \"修复 src/a.ts 类型错误\""); return 1; }
 
   let config;
@@ -113,14 +113,16 @@ async function runCmd(args: string[]): Promise<number> {
   return result.status === "error" ? 1 : 0;
 }
 
-function parseRunFlags(args: string[]): { config?: string; workspace?: string; model?: string; mock?: boolean } {
-  const out: { config?: string; workspace?: string; model?: string; mock?: boolean } = {};
+function parseRunFlags(args: string[]): { config?: string; workspace?: string; model?: string; mock?: boolean; positionalArgs: string[] } {
+  const out: { config?: string; workspace?: string; model?: string; mock?: boolean; positionalArgs: string[] } = { positionalArgs: [] };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === "-c" || a === "--config") out.config = args[++i];
-    if (a === "-w" || a === "--workspace") out.workspace = args[++i];
-    if (a === "--llm-model") out.model = args[++i];
-    if (a === "--mock") out.mock = true;
+    else if (a === "-w" || a === "--workspace") out.workspace = args[++i];
+    else if (a === "--llm-model") out.model = args[++i];
+    else if (a === "--mock") out.mock = true;
+    else if (a === "--") { out.positionalArgs.push(...args.slice(i + 1)); break; }
+    else if (!a.startsWith("-")) out.positionalArgs.push(a);
   }
   return out;
 }

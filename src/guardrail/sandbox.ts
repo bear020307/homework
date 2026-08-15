@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { isAbsolute, join } from "node:path";
 import { isWithinWorkspace } from "./path-fence.ts";
+import { tokenizeShell } from "./shell.ts";
 
 export interface ExecResult {
   ok: boolean;
@@ -42,9 +43,16 @@ export class SandboxExecutor {
     }
     const timeoutMs = opts?.timeoutMs ?? this.defaultTimeoutMs;
     return new Promise<ExecResult>((resolve) => {
-      const child = spawn(command, {
+      const argv = tokenizeShell(command);
+      if (argv.length === 0) {
+        resolve({ ok: false, exitCode: null, stdout: "", stderr: "沙箱拒绝：空命令", timedOut: false });
+        return;
+      }
+      const [prog, ...args] = argv;
+      const child = spawn(prog, args, {
         cwd,
-        shell: true,
+        shell: false,
+        detached: process.platform !== "win32",
         env: {
           ...this.childEnv(),
           PATH: this.pathAllowlist.length > 0 ? this.pathAllowlist.join(":") : process.env.PATH,
@@ -56,7 +64,7 @@ export class SandboxExecutor {
       let timedOut = false;
       const timer = setTimeout(() => {
         timedOut = true;
-        child.kill("SIGKILL");
+        try { process.kill(-child.pid!, "SIGKILL"); } catch { child.kill("SIGKILL"); }
       }, timeoutMs);
       child.stdout.on("data", (d) => { stdout += d.toString(); });
       child.stderr.on("data", (d) => { stderr += d.toString(); });
