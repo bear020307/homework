@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.keychain-dump
+.session.json
+memory.json
+.DS_Store
+.worktrees/
