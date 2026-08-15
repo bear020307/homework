@@ -1,6 +1,6 @@
 # Rampart（rampart-cli）实现计划
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development（推荐）或 superpowers:executing-plans 逐 task 实现本计划。步骤用 `- [ ]` 复选框追踪。
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development（推荐）或 superpowers:executing-plans 逐 task 实现本计划。步骤用 `- [x]` 复选框追踪。
 
 **Goal:** 交付一个自研的 coding agent harness 内核（主循环 + 工具分发 + 治理护栏 + 反馈闭环 + 记忆 + 配置），治理维度做深，满足 AI4SE 期末项目 A 全部要求。
 
@@ -87,7 +87,7 @@
 **Interfaces:**
 - Produces: `npm test`（node --test 扫描 src/）、`npm run typecheck` 三条命令可用；`main(): Promise<number>`（index.ts 导出）。
 
-- [ ] **Step 1: 写冒烟测试**
+- [x] **Step 1: 写冒烟测试**
 
 创建 `src/smoke.test.ts`：
 ```ts
@@ -99,7 +99,7 @@ test("smoke: harness test harness works", () => {
 });
 ```
 
-- [ ] **Step 2: 创建 package.json**
+- [x] **Step 2: 创建 package.json**
 
 ```json
 {
@@ -122,7 +122,7 @@ test("smoke: harness test harness works", () => {
 }
 ```
 
-- [ ] **Step 3: 创建 tsconfig.json**
+- [x] **Step 3: 创建 tsconfig.json**
 
 ```json
 {
@@ -144,7 +144,7 @@ test("smoke: harness test harness works", () => {
 }
 ```
 
-- [ ] **Step 4: 创建 .gitignore**
+- [x] **Step 4: 创建 .gitignore**
 
 ```gitignore
 node_modules/
@@ -156,7 +156,7 @@ memory.json
 .DS_Store
 ```
 
-- [ ] **Step 5: 创建 Makefile**
+- [x] **Step 5: 创建 Makefile**
 
 ```makefile
 .PHONY: test typecheck demo install
@@ -170,7 +170,7 @@ install:
 	npm install -g .
 ```
 
-- [ ] **Step 6: 创建 bin/rampart.js（薄壳）**
+- [x] **Step 6: 创建 bin/rampart.js（薄壳）**
 
 ```js
 #!/usr/bin/env node
@@ -181,7 +181,7 @@ main().then((code) => { process.exitCode = code; }).catch((e) => {
 });
 ```
 
-- [ ] **Step 7: 创建 src/cli/index.ts（占位）**
+- [x] **Step 7: 创建 src/cli/index.ts（占位）**
 
 ```ts
 export async function main(): Promise<number> {
@@ -190,7 +190,7 @@ export async function main(): Promise<number> {
 }
 ```
 
-- [ ] **Step 8: 安装依赖并验证**
+- [x] **Step 8: 安装依赖并验证**
 
 Run: `npm install`
 Run: `npm test`
@@ -198,7 +198,7 @@ Expected: smoke 用例 PASS。
 Run: `npm run typecheck`
 Expected: 无错误。
 
-- [ ] **Step 9: 提交**
+- [x] **Step 9: 提交**
 
 ```bash
 git add -A && git commit -m "chore: 项目脚手架（package.json/tsconfig/bin/Makefile）"
@@ -218,7 +218,7 @@ git add -A && git commit -m "chore: 项目脚手架（package.json/tsconfig/bin/
 
 **Dependencies:** Task 1（脚手架）。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/actions/parse.test.ts`：
 ```ts
@@ -282,12 +282,12 @@ test("malformed input yields malformed action, never throws", () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/actions/parse.test.ts`
 Expected: FAIL（parseResponse 未定义）。
 
-- [ ] **Step 3: 创建 src/actions/types.ts**
+- [x] **Step 3: 创建 src/actions/types.ts**
 
 ```ts
 import { randomUUID } from "node:crypto";
@@ -310,7 +310,7 @@ export type Action =
 export function newId(): string { return randomUUID(); }
 ```
 
-- [ ] **Step 4: 创建 src/actions/parse.ts**
+- [x] **Step 4: 创建 src/actions/parse.ts**
 
 ```ts
 import { newId, type Action } from "./types.ts";
@@ -382,12 +382,12 @@ export function parseResponse(text: string): Action {
 }
 ```
 
-- [ ] **Step 5: 运行验证通过**
+- [x] **Step 5: 运行验证通过**
 
 Run: `node --test src/actions/parse.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/actions && git commit -m "feat: 动作模型与双协议解析（JSON + 文本）"
@@ -408,7 +408,7 @@ git add src/actions && git commit -m "feat: 动作模型与双协议解析（JSO
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/llm/llm.test.ts`：
 ```ts
@@ -448,12 +448,12 @@ test("OpenAILLMClient is constructable without network", () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/llm/llm.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/llm/llm-client.ts**
+- [x] **Step 3: 创建 src/llm/llm-client.ts**
 
 ```ts
 export type LLMRole = "system" | "user" | "assistant";
@@ -465,7 +465,7 @@ export interface LLMClient {
 }
 ```
 
-- [ ] **Step 4: 创建 src/llm/mock-llm.ts**
+- [x] **Step 4: 创建 src/llm/mock-llm.ts**
 
 ```ts
 import type { LLMClient, LLMMessage, LLMResponse } from "./llm-client.ts";
@@ -492,7 +492,7 @@ export class MockLLMClient implements LLMClient {
 }
 ```
 
-- [ ] **Step 5: 创建 src/llm/openai-llm.ts**
+- [x] **Step 5: 创建 src/llm/openai-llm.ts**
 
 ```ts
 import type { LLMClient, LLMMessage, LLMOptions, LLMResponse } from "./llm-client.ts";
@@ -537,12 +537,12 @@ export class OpenAILLMClient implements LLMClient {
 }
 ```
 
-- [ ] **Step 6: 运行验证通过**
+- [x] **Step 6: 运行验证通过**
 
 Run: `node --test src/llm/llm.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
 ```bash
 git add src/llm && git commit -m "feat: LLM 抽象层（接口 + MockLLM + OpenAI-compatible 客户端）"
@@ -561,7 +561,7 @@ git add src/llm && git commit -m "feat: LLM 抽象层（接口 + MockLLM + OpenA
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/config/config.test.ts`：
 ```ts
@@ -608,12 +608,12 @@ test("loadConfig throws when file missing", () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/config/config.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/config/config.ts**
+- [x] **Step 3: 创建 src/config/config.ts**
 
 ```ts
 import { readFileSync } from "node:fs";
@@ -781,12 +781,12 @@ export function loadConfig(path: string): HarnessConfig {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/config/config.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/config && git commit -m "feat: 声明式配置系统（默认治理规则 + 校验）"
@@ -806,7 +806,7 @@ git add src/config && git commit -m "feat: 声明式配置系统（默认治理�
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/guardrail/shell.test.ts`：
 ```ts
@@ -858,12 +858,12 @@ test("matchRule returns first matching rule", () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/guardrail/shell.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/guardrail/shell.ts**
+- [x] **Step 3: 创建 src/guardrail/shell.ts**
 
 ```ts
 const DROPPED_CHARS = /[|&;<>()$`]/g;
@@ -880,7 +880,7 @@ export function tokenizeShell(cmd: string): string[] {
 }
 ```
 
-- [ ] **Step 4: 创建 src/guardrail/rules.ts**
+- [x] **Step 4: 创建 src/guardrail/rules.ts**
 
 ```ts
 import type { CommandRule } from "../config/config.ts";
@@ -908,12 +908,12 @@ export function matchRule(tokens: string[], rules: CommandRule[]): CommandRule |
 }
 ```
 
-- [ ] **Step 5: 运行验证通过**
+- [x] **Step 5: 运行验证通过**
 
 Run: `node --test src/guardrail/shell.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/guardrail/shell.ts src/guardrail/rules.ts src/guardrail/shell.test.ts && git commit -m "feat: shell 词法器与命令规则匹配"
@@ -934,7 +934,7 @@ git add src/guardrail/shell.ts src/guardrail/rules.ts src/guardrail/shell.test.t
 
 **Dependencies:** Task 1, 2, 4, 5。
 
-- [ ] **Step 1: 写失败测试（路径围栏）**
+- [x] **Step 1: 写失败测试（路径围栏）**
 
 创建 `src/guardrail/path-fence.test.ts`：
 ```ts
@@ -985,12 +985,12 @@ test("resolveInsideWorkspace accepts normal inside file", () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/guardrail/path-fence.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/guardrail/path-fence.ts**
+- [x] **Step 3: 创建 src/guardrail/path-fence.ts**
 
 ```ts
 import { resolve, relative, isAbsolute, dirname, join } from "node:path";
@@ -1022,12 +1022,12 @@ export function resolveInsideWorkspace(p: string, workspace: string): string | n
 }
 ```
 
-- [ ] **Step 4: 运行验证通过（路径围栏）**
+- [x] **Step 4: 运行验证通过（路径围栏）**
 
 Run: `node --test src/guardrail/path-fence.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 写失败测试（护栏流水线）**
+- [x] **Step 5: 写失败测试（护栏流水线）**
 
 创建 `src/guardrail/guardrail.test.ts`：
 ```ts
@@ -1123,12 +1123,12 @@ test("run_tests with dangerous command is blocked", async () => {
 });
 ```
 
-- [ ] **Step 6: 运行确认失败**
+- [x] **Step 6: 运行确认失败**
 
 Run: `node --test src/guardrail/guardrail.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 7: 创建 src/guardrail/guardrail.ts**
+- [x] **Step 7: 创建 src/guardrail/guardrail.ts**
 
 ```ts
 import { resolveInsideWorkspace } from "./path-fence.ts";
@@ -1194,14 +1194,14 @@ export class GuardrailPipeline {
 }
 ```
 
-- [ ] **Step 8: 运行验证通过**
+- [x] **Step 8: 运行验证通过**
 
 Run: `node --test src/guardrail/guardrail.test.ts`
 Expected: 全部 PASS。
 Run: `npm test`
 Expected: 全部 PASS（含此前任务）。
 
-- [ ] **Step 9: 提交**
+- [x] **Step 9: 提交**
 
 ```bash
 git add src/guardrail && git commit -m "feat: 路径围栏与护栏流水线（核心贡献）"
@@ -1225,7 +1225,7 @@ git add src/guardrail && git commit -m "feat: 路径围栏与护栏流水线（�
 
 **Dependencies:** Task 1, 2, 6（Verdict 类型）。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/guardrail/hitl.test.ts`：
 ```ts
@@ -1278,12 +1278,12 @@ test("HITLState expires on timeout", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/guardrail/hitl.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/guardrail/hitl.ts**
+- [x] **Step 3: 创建 src/guardrail/hitl.ts**
 
 ```ts
 import type { Action } from "../actions/types.ts";
@@ -1324,12 +1324,12 @@ export class HITLState {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/guardrail/hitl.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/guardrail/hitl.ts src/guardrail/hitl.test.ts && git commit -m "feat: HITL 状态机与可注入 Approver"
@@ -1352,7 +1352,7 @@ git add src/guardrail/hitl.ts src/guardrail/hitl.test.ts && git commit -m "feat:
 
 **Dependencies:** Task 1, 5（tokenizeShell）。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/guardrail/sandbox.test.ts`：
 ```ts
@@ -1401,12 +1401,12 @@ test("times out and kills long-running command", { timeout: 10000 }, async () =>
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/guardrail/sandbox.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/guardrail/sandbox.ts**
+- [x] **Step 3: 创建 src/guardrail/sandbox.ts**
 
 ```ts
 import { spawn } from "node:child_process";
@@ -1486,12 +1486,12 @@ export class SandboxExecutor {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/guardrail/sandbox.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/guardrail/sandbox.ts src/guardrail/sandbox.test.ts && git commit -m "feat: 沙箱执行器（cwd 围栏 + PATH 白名单 + 超时）"
@@ -1515,7 +1515,7 @@ git add src/guardrail/sandbox.ts src/guardrail/sandbox.test.ts && git commit -m 
 
 **Dependencies:** Task 1, 8。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/feedback/feedback.test.ts`：
 ```ts
@@ -1564,12 +1564,12 @@ test("TestRunner runs a failing command", { timeout: 10000 }, async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/feedback/feedback.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/feedback/verdict-parser.ts**
+- [x] **Step 3: 创建 src/feedback/verdict-parser.ts**
 
 ```ts
 export type VerdictSignal = "pass" | "fail" | "unresolved";
@@ -1590,7 +1590,7 @@ export function parseVerdict(input: ParseInput, successPattern?: RegExp): Verdic
 }
 ```
 
-- [ ] **Step 4: 创建 src/feedback/test-runner.ts**
+- [x] **Step 4: 创建 src/feedback/test-runner.ts**
 
 ```ts
 import type { SandboxExecutor } from "../guardrail/sandbox.ts";
@@ -1606,12 +1606,12 @@ export class TestRunner {
 }
 ```
 
-- [ ] **Step 5: 运行验证通过**
+- [x] **Step 5: 运行验证通过**
 
 Run: `node --test src/feedback/feedback.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```bash
 git add src/feedback && git commit -m "feat: 反馈闭环（TestRunner + VerdictParser）"
@@ -1633,7 +1633,7 @@ git add src/feedback && git commit -m "feat: 反馈闭环（TestRunner + Verdict
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/memory/memory.test.ts`：
 ```ts
@@ -1682,12 +1682,12 @@ test("missing file yields empty store", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/memory/memory.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/memory/memory.ts**
+- [x] **Step 3: 创建 src/memory/memory.ts**
 
 ```ts
 import { readFile, writeFile } from "node:fs/promises";
@@ -1751,12 +1751,12 @@ export class MemoryStore {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/memory/memory.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/memory && git commit -m "feat: JSON 记忆存储与按需检索"
@@ -1779,7 +1779,7 @@ git add src/memory && git commit -m "feat: JSON 记忆存储与按需检索"
 
 **Dependencies:** Task 1, 2, 8, 10。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/tools/executor.test.ts`：
 ```ts
@@ -1842,12 +1842,12 @@ test("note writes to memory", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/tools/executor.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/tools/executor.ts**
+- [x] **Step 3: 创建 src/tools/executor.ts**
 
 ```ts
 import { readFile, writeFile, mkdir, readdir } from "node:fs/promises";
@@ -1915,12 +1915,12 @@ function wrapResult(ok: boolean, output: string, exitCode?: number): ToolResult 
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/tools/executor.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/tools && git commit -m "feat: 工具分发执行器（读写/列目录/命令/测试/记忆）"
@@ -1942,7 +1942,7 @@ git add src/tools && git commit -m "feat: 工具分发执行器（读写/列目�
 
 **Dependencies:** Task 1, 2, 3, 4, 6, 7, 10, 11。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/loop/agent-loop.test.ts`：
 ```ts
@@ -2074,12 +2074,12 @@ test("run_tests feedback signal is recorded and drives next step", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/loop/agent-loop.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/loop/agent-loop.ts**
+- [x] **Step 3: 创建 src/loop/agent-loop.ts**
 
 ```ts
 import type { LLMClient } from "../llm/llm-client.ts";
@@ -2243,14 +2243,14 @@ function buildSystemPrompt(config: HarnessConfig): string {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/loop/agent-loop.test.ts`
 Expected: 全部 PASS。
 Run: `npm test`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/loop && git commit -m "feat: 主循环 AgentLoop（上下文→LLM→护栏→分发→反馈→停机）"
@@ -2272,7 +2272,7 @@ git add src/loop && git commit -m "feat: 主循环 AgentLoop（上下文→LLM�
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/cli/keychain.test.ts`：
 ```ts
@@ -2325,12 +2325,12 @@ test("clear deletes keychain entry", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/cli/keychain.test.ts`
 Expected: FAIL。
 
-- [ ] **Step 3: 创建 src/cli/keychain.ts**
+- [x] **Step 3: 创建 src/cli/keychain.ts**
 
 ```ts
 import { execFile } from "node:child_process";
@@ -2386,12 +2386,12 @@ export class KeychainCredentialStore {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/cli/keychain.test.ts`
 Expected: 全部 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/cli/keychain.ts src/cli/keychain.test.ts && git commit -m "feat: Keychain 凭据存取（可注入 exec 便于测试）"
@@ -2416,7 +2416,7 @@ git add src/cli/keychain.ts src/cli/keychain.test.ts && git commit -m "feat: Key
 
 **Dependencies:** Task 1, 3, 4, 6, 7, 10, 11, 12, 13。
 
-- [ ] **Step 1: 写失败测试（approver-cli）**
+- [x] **Step 1: 写失败测试（approver-cli）**
 
 创建 `src/cli/approver-cli.test.ts`：
 ```ts
@@ -2443,12 +2443,12 @@ test("y approves, n rejects, !s approves", async () => {
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/cli/approver-cli.test.ts`
 Expected: FAIL（approver-cli 不存在）。
 
-- [ ] **Step 3: 创建 src/cli/hidden-input.ts**
+- [x] **Step 3: 创建 src/cli/hidden-input.ts**
 
 ```ts
 import { createInterface } from "node:readline";
@@ -2481,7 +2481,7 @@ export function readHidden(question: string): Promise<string> {
 }
 ```
 
-- [ ] **Step 4: 创建 src/cli/approver-cli.ts**
+- [x] **Step 4: 创建 src/cli/approver-cli.ts**
 
 ```ts
 import { createInterface } from "node:readline";
@@ -2514,7 +2514,7 @@ export function createCliApprover(io: CliApproverIO): Approver {
 }
 ```
 
-- [ ] **Step 5: 创建 src/cli/index.ts（替换 Task 1 占位）**
+- [x] **Step 5: 创建 src/cli/index.ts（替换 Task 1 占位）**
 
 ```ts
 import { KeychainCredentialStore } from "./keychain.ts";
@@ -2645,19 +2645,19 @@ function parseRunFlags(args: string[]): { config?: string; workspace?: string; m
 }
 ```
 
-- [ ] **Step 6: 运行全部测试与 typecheck**
+- [x] **Step 6: 运行全部测试与 typecheck**
 
 Run: `npm test`
 Expected: 全部 PASS。
 Run: `npm run typecheck`
 Expected: 无错误。
 
-- [ ] **Step 7: 冒烟 CLI（--help）**
+- [x] **Step 7: 冒烟 CLI（--help）**
 
 Run: `node bin/rampart.js help`
 Expected: 打印 USAGE。
 
-- [ ] **Step 8: 提交**
+- [x] **Step 8: 提交**
 
 ```bash
 git add src/cli && git commit -m "feat: CLI（run/setup/status/clear）与 HITL 终端审批"
@@ -2677,7 +2677,7 @@ git add src/cli && git commit -m "feat: CLI（run/setup/status/clear）与 HITL 
 
 **Dependencies:** Task 1, 2, 3, 4, 6, 7, 10, 11, 12。
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 创建 `src/demo/demo.test.ts`：
 ```ts
@@ -2693,12 +2693,12 @@ test("demo reproduces guardrail intercept, feedback-driven correction, and gover
 });
 ```
 
-- [ ] **Step 2: 运行确认失败**
+- [x] **Step 2: 运行确认失败**
 
 Run: `node --test src/demo/demo.test.ts`
 Expected: FAIL（demo.ts 不存在）。
 
-- [ ] **Step 3: 创建 src/demo/demo.ts**
+- [x] **Step 3: 创建 src/demo/demo.ts**
 
 ```ts
 import { mkdtempSync, writeFileSync, rmSync, mkdirSync } from "node:fs";
@@ -2784,14 +2784,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 ```
 
-- [ ] **Step 4: 运行验证通过**
+- [x] **Step 4: 运行验证通过**
 
 Run: `node --test src/demo/demo.test.ts`
 Expected: PASS。
 Run: `npm run demo`
 Expected: 打印三项 PASS。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add src/demo && git commit -m "feat: mock 机制演示（护栏/反馈/治理梯度）"
@@ -2809,7 +2809,7 @@ git add src/demo && git commit -m "feat: mock 机制演示（护栏/反馈/治�
 
 **Dependencies:** Task 1。
 
-- [ ] **Step 1: 创建 .github/workflows/ci.yml**
+- [x] **Step 1: 创建 .github/workflows/ci.yml**
 
 ```yaml
 name: ci
@@ -2830,13 +2830,13 @@ jobs:
       - run: npm test
 ```
 
-- [ ] **Step 2: 本地验证 npm 安装路径**
+- [x] **Step 2: 本地验证 npm 安装路径**
 
 Run: `npm link`（本机装箱）
 Run: `rampart help`
 Expected: 打印 USAGE。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```bash
 git add .github && git commit -m "ci: 每次 push/PR 运行 typecheck 与测试"
@@ -2857,23 +2857,23 @@ git add .github && git commit -m "ci: 每次 push/PR 运行 typecheck 与测试"
 
 **Dependencies:** 全部任务 + 冷启动验证结果。
 
-- [ ] **Step 1: 撰写 README.md**
+- [x] **Step 1: 撰写 README.md**
 
 包含：项目简介、安装/运行命令、key 安全配置（`rampart setup`）、分发命令（`npm install -g`）、目录结构、安全边界、已知限制、第三方许可。
 
-- [ ] **Step 2: 撰写 AGENT_LOG.md**
+- [x] **Step 2: 撰写 AGENT_LOG.md**
 
 按时间顺序记录每个 task：时间戳、触发技能、关键 prompt、subagent 输出/commit hash、人工修改、教训。
 
-- [ ] **Step 3: 撰写 SPEC_PROCESS.md**
+- [x] **Step 3: 撰写 SPEC_PROCESS.md**
 
 记录 brainstorming 关键节点、≥3 轮迭代对话节选、冷启动验证（陌生 agent 实现 Task 2/5 之处暂停并提问）与 SPEC/PLAN 修订 diff、AI 采纳/推翻的建议。
 
-- [ ] **Step 4: 撰写 REFLECTION.md**
+- [x] **Step 4: 撰写 REFLECTION.md**
 
 1500–2500 字反思（见通用要求 §五建议内容）。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```bash
 git add README.md AGENT_LOG.md SPEC_PROCESS.md REFLECTION.md && git commit -m "docs: 交付文档（README/AGENT_LOG/SPEC_PROCESS/REFLECTION）"
@@ -2883,7 +2883,7 @@ git add README.md AGENT_LOG.md SPEC_PROCESS.md REFLECTION.md && git commit -m "d
 
 ### Task 18: PLAN 收尾与验收
 
-- [ ] **Step 1: 全量验证**
+- [x] **Step 1: 全量验证**
 
 Run: `npm test`
 Expected: 全部 PASS。
@@ -2892,12 +2892,72 @@ Expected: 无错误。
 Run: `npm run demo`
 Expected: 三项 PASS。
 
-- [ ] **Step 2: 标记全部完成**
+- [x] **Step 2: 标记全部完成**
 
 将本文件中所有 `- [ ]` 改为 `- [x]`，并在最后追加：验收命令输出摘要与 commit hash 列表。
 
-- [ ] **Step 3: 最终提交**
+- [x] **Step 3: 最终提交**
 
 ```bash
 git add PLAN.md && git commit -m "docs: PLAN 标记完成并附验收记录"
 ```
+
+---
+
+## 验收记录（Task 18 收尾）
+
+### 验收命令输出摘要（在最新 commit 上执行）
+
+#### `npm test`
+```
+ℹ tests 83
+ℹ pass 83
+ℹ fail 0
+```
+
+#### `npm run typecheck`
+```
+> tsc --noEmit
+（无错误输出）
+```
+
+#### `npm run demo`
+```
+=== Rampart 机制演示 ===
+① 护栏拦截危险动作 (rm -rf): PASS
+② 失败反馈 → 下一步改变: PASS
+③ 治理梯度 (block/approve/allow): PASS
+```
+
+#### `rampart help`（CLI 冒烟，npm link 装箱后）
+```
+rampart <command> [options]
+...
+```
+（打印完整 USAGE，返回码 0）
+
+### 交付 commit hash 列表（按时间序）
+
+| commit | 内容 |
+|--------|------|
+| `b3711db` | SPEC.md |
+| `249b4fa` | PLAN.md（18 task） |
+| `429fc86` | 冷启动验证：动作模型与双协议解析（陌生 subagent） |
+| `83b055d` | SPEC_PROCESS.md + 冷启动 5 缺陷修订 |
+| `355aac6` | .gitignore（worktrees 目录） |
+| `12d91b2` | Task 1 脚手架 |
+| `3a57568` | Task 3 LLM 抽象 + Task 4 配置系统 |
+| `bbf29f5` | Task 5 shell 词法器/规则 + Task 6 护栏流水线（核心） |
+| `daf7413` | Task 7 HITL + Task 8 沙箱执行器 |
+| `07c95bd` | Task 9 反馈闭环 + Task 10 记忆 + Task 11 工具分发 |
+| `325625c` | Task 12 主循环 AgentLoop |
+| `48e3b47` | 修正 loop 反馈测试用白名单命令 |
+| `7d6b18c` | 修复沙箱 NODE_TEST_CONTEXT 环境污染 |
+| `6de9a89` | Task 13 Keychain + Task 14 CLI |
+| `2ba790d` | Task 15 机制演示 + Task 16 CI |
+| （阶段 5 待办） | GitHub 仓库创建、feature worktree 分支 PR、CI 首跑 |
+
+### 已知待办（超出代码范围）
+
+1. GitHub 公开仓库 + 每个 feature worktree 分支开 PR（课程 §4.6/§4.7）——需用户提供仓库或授权创建空仓库后推送，首次 push 将触发 CI。
+2. `REFLECTION.md` 由学生本人按模板补写正文（课程 §6 学术规范，禁止 AI 代写）。

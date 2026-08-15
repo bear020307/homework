@@ -159,3 +159,54 @@ function make(kind: Action["kind"], args: Record<string, unknown>): Action {
 
 **对整体方法论的批判**
 - Superpowers 把 TDD/评审/计划的纪律外置，但"验收标准的质量"仍是人的责任：LLM 可以帮你把标准写具体，却不会替你判断"这一步是否真的算完成"。本次冷启动正是靠人审阅 diff 才抓到 tags / 文本协议这类它"猜对了"、但文档是错的缺口。
+
+---
+
+## 7. 实现阶段的 spec 偏差与修订（补充记录）
+
+冷启动之后的主会话逐 task 实现（阶段 2，见 AGENT_LOG）再次暴露 PLAN 的若干偏差。与冷启动"文档落后于代码"不同，这些偏差多数来自**运行环境约束**与**语义冲突**，同样记录为 spec 修订依据。
+
+### 7.1 Node strip-only 模式（`erasableSyntaxOnly`）约束
+
+PLAN 中多处示例代码使用了 Node 类型剥离不适用的语法，逐一修正：
+
+| 语法 | PLAN 出现处 | Node strip-only | 修订 |
+|------|------------|-----------------|------|
+| `constructor(private x: T)` 参数属性 | llm/mock、openai、config、hitl、guardrail、sandbox、memory、test-runner | 不支持 | 改显式字段 + 构造函数赋值 |
+| `enum` | loop 测试（Phase） | 不支持 | 改计数器/字符串联合 |
+| `#private` 方法 | memory | 不支持 | 改普通私有方法 |
+
+教训：PLAN 是"手写可读 + 测试可跑"的，但目标运行时（node≥22 strip）对 TS 语法子集有硬限制；**规约应把运行环境约束前置进模板**，否则实现阶段每 task 都要踩一遍。
+
+### 7.2 护栏语义与测试目标的冲突（反馈闭环）
+
+- loop 反馈测试原用 `node -e "process.exit(1)"` 制造失败；但 `node -e` 不在我们配置的白名单里，默认 `defaultPolicyForSpawn: "deny"` 会把它拦成 `denied`，**永远观察不到 feedback**（deny 分支不执行也不回灌）。
+- 修订：反馈场景统一改用白名单内命令 `node --test fail.test.mjs`（写一个真实 fail 的测试文件）。demo（机制②）同样修正。
+- 启示：凡依赖"命令真实执行"的测试/演示，先按护栏语义过一遍，否则护栏层级会把"想要的失败"变成"无声拒绝"。
+
+### 7.3 测试运行器环境污染（`NODE_TEST_CONTEXT`）
+
+- 问题：父 `node --test` 会把 `NODE_TEST_CONTEXT` 写进子进程 env；沙箱再 spawn 内层 `node --test` 时继承该变量，内层被识别为"嵌套测试运行器"而直接 `exit 0`（真实应该是 fail 的退出码）。
+- 症状：`node --test fail.test.mjs` 在裸跑时 exit 1，在测试套件内跑 exit 0，反馈信号从 `fail` 误判成 `pass`。
+- 修订：`SandboxExecutor.childEnv()` 构造子进程 env 前删除 `NODE_TEST_CONTEXT`（commit `7d6b18c`）。
+- 启示：**"测试通过但结果错"与"测试没写过"一样危险**；环境变量穿透是微妙的 cross-test 污染源，沙箱/子进程边界必须净化 env。
+
+### 7.4 macOS 路径软链（`/var` → `/private/var`）
+
+- `tmpdir()` 返回 `/var/folders/...`，其 realpath 是 `/private/var/folders/...`。护栏若只对 workspace 字符串做 `relative()` 比较，工作区"自身的文件"也会被判越界。
+- 修订：`path-fence.ts` 统一先对路径做"最深已存在祖先 realpath + 拼接剩余段"的规范化再比较（commit `bbf29f5`）。
+- 启示：路径安全不能用朴素字符串前缀判断，跨平台软链 + 大小写（macOS 不敏感）都要在围栏层面归一化。
+
+### 7.5 修订清单汇总
+
+| bug/约束 | 修正 commit |
+|----------|-------------|
+| strip-only 不支持的语法（多处） | `3a57568`、`07c95bd`、`bbf29f5`、`daf7413` |
+| 护栏构造签名（接收完整 HarnessConfig） | `bbf29f5`、`6de9a89` |
+| 反馈测试/deadlock 用白名单外命令 | `48e3b47`、`2ba790d` |
+| `NODE_TEST_CONTEXT` 环境污染 | `7d6b18c` |
+| macOS 路径软链围栏误判 | `bbf29f5` |
+| HITL 超时测试不可命中 | `daf7413` |
+| ESM 主入口守卫（相对 argv[1]） | `2ba790d` |
+
+这些修订全部有对应的测试失败在先（TDD 红→绿），可与 SPEC/PLAN 文本中的原表述做 diff 复核。
