@@ -102,9 +102,11 @@ src/
 | 命令规则 approve | `approve` | 如 `git push --force` / `npm publish`，走 HITL 人工确认 |
 | 命令规则 allow | `allow` | 如 `git push` / `npm test` / `node --test` / `ls` / `cat` |
 | 默认策略 | `deny` | 未列入白名单的命令一律拒绝（`defaultPolicyForSpawn: "deny"`） |
-| 沙箱执行 | — | cwd 越界拒绝；PATH 白名单；超时 SIGKILL；剥离测试运行器 env |
+| 沙箱执行 | — | cwd 越界拒绝；PATH 白名单；超时 SIGKILL（进程组）；**无 shell 解释**（`spawn(argv)`，判定与执行共用同一 token 视图） |
 
 动作一旦 `block / deny / rejected / approval_expired` 就**不会**进入执行器。`run_tests` 无命令时使用受控反馈配置；携带命令时与其他命令一视同仁地接受规则治理。
+
+> **为什么"无 shell 解释"重要**：命令以词法 token 直接 `spawn`，`;  |  &  $(...)  >` 等 shell 元字符不会再被解释为运算符，而是成为程序的惰性参数（并注意护栏判定与真实执行用的是**同一份 token**），杜绝"判定看到的是净化后的、执行看到的是原始的"这类注入窗口（评审复现的绕过已被测试锁死，见 `src/guardrail/sandbox.test.ts`）。
 
 ---
 
@@ -128,7 +130,8 @@ make test typecheck
 ## 已知限制
 
 - **平台**：Keychain 依赖 macOS `security` CLI；沙箱依赖 POSIX shell（`shell: true`）。非 macOS 请改用 config 或注入自实现凭据存储。
-- **治理颗粒度**：命令规则做的是**词法连续子序列匹配**（不解析语义），子进程可再派生子进程、沙箱为同权限约束而非系统容器；适合作为课程演示的工程纵深，不等于生产级 EDR。
+- **治理颗粒度**：命令规则做的是**词法连续子序列匹配**（不解析语义），且 `allow` 白名单里 `cat`/`ls` 这类单 token 规则经 `spawn` 时可作用于任意参数（读工作区外文件仍会被 read_file 的路径围栏挡住，但 `cat /etc/passwd` 这类命令形式由用户在白名单配置里自行控管）；子进程为同权限约束而非系统容器（无 seccomp/网络 namespace），适合作为课程演示的工程纵深，不等于生产级 EDR。
+- **命令执行**：无 shell 解释意味着 `|`/`&&`/`$(...)` 等不再可用——这是**安全设计**而非限制；需要管道/重定向时给 agent 提供脚本文件再执行。
 - **记忆**：单 JSON 文件、按 tag/limit 按需检索，无向量检索与自动精炼。
 - **LLM 协议**：仅 OpenAI-compatible `chat/completions`，单一动作 JSON 或文本输出。
 - **npm 分发**：`npm install -g .` 即可；发布到 registry 前需补齐 `npm publish` 前的版本/README 元数据（见 AGENT_LOG）。

@@ -52,7 +52,12 @@
 
 ## 阶段 4：代码评审与合并
 
-- 全额 83 用例、`tsc --noEmit`、demo 三项 PASS 后，按 Superpowers 评审纪律进行两阶段评审（self-review diff + 面向 final 的审查），随后合并回 `main` 并保留 worktree/分支记录（`git worktree list`）。
+- 全量 83 用例初验后，委托独立 `general` subagent 做安全/正确性评审。评审确认关键结论：护栏判定语义、路径围栏、AgentLoop 停机/审批/反馈、以及无密钥泄漏/无真实 Keychain 触碰均正确。
+- 评审发现 2 个 **CRITICAL** 并已修复（commit `df0b1fa`）：
+  1. **C1 命令注入**：原 `sandbox.ts` 用 `shell:true` 执行原字符串，但护栏只对"清洗后 token"判定——`cat a.txt; echo PWNED_$(whoami) > /tmp/x` 可判 allow 后真实执行写文件。修复：删除 `shell:true`，`tokenizeShell` 产物直接 `spawn(argv)` 执行，使判定与执行共用同一 token 视图；shell 元字符成为惰性参数（实测注入原语被中和）。顺带用 `detached` 进程组 SIGKILL 回收子进程树（M5）。
+  2. **C2 路径逃逸**：`executor.ts` 原按 `action.path` 直读直写（相对主进程 cwd），而护栏按工作区解析授权，`workspace !== cwd` 时可读到工作区外文件。修复：executor 统一过 `resolveInsideWorkspace`，写入/读取都锁在围栏内。
+- 另修 MAJOR：M1 命令 token 路径归一化（`/bin/rm` 命中 `rm-rf`）、`dd` 规则改为拦截任意 `dd`；M2 CLI `run` 的位置参数改为 flags 解析后再收集；M6 移除 `buildContext` 死参数。NIT 中规避了 `tokenizeShell` 全局 regex 的 `lastIndex` 依赖。
+- 安全专项：新增 6 个边界测试（链式命令/绝对路径/任意 dd/注入中和/cwd 逃逸），**89 tests pass、tsc clean、demo 三项 PASS**。introduced-in-review 的全部结论回写到 README 安全边界的"已知限制"。**
 
 ## 阶段 5：GitHub（待办，用户跟进）
 
